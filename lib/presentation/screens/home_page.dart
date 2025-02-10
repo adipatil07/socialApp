@@ -1,47 +1,48 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:social_app/screens/add_post_page.dart';
+import 'package:social_app/presentation/screens/add_post_page.dart';
 
-class HomeScreen extends ConsumerWidget {
-  final postsProvider = StateProvider<List<Map<String, String>>>((ref) => [
-        {
-          'imageUrl':
-              'https://media.giphy.com/media/EqVipgL5iu0ivcddvA/giphy.gif',
-          'title': 'Exciting Animation',
-          'description': 'Enjoy this amazing GIF with lots of fun!'
-        },
-        {
-          'imageUrl': 'https://pngimg.com/uploads/birds/birds_PNG9.png',
-          'title': 'Beautiful Bird',
-          'description': 'Look at this lovely bird flying in the sky.'
-        },
-        {
-          'imageUrl':
-              'http://www.pngmart.com/files/6/Barn-Owl-Transparent-Images-PNG.png',
-          'title': 'Majestic Owl',
-          'description': 'The wise old owl, a true symbol of knowledge.'
-        },
-        {
-          'imageUrl': 'https://media.giphy.com/media/6U6sno5AkUsOQ/giphy.gif',
-          'title': 'Funny Animation',
-          'description': 'Laugh out loud with this hilarious animation!'
-        },
-      ]);
-
-  final commentsProvider = StateProvider<Map<int, List<String>>>((ref) => {
-        0: ['Amazing GIF!', 'Looks great!', 'Wow, nice one!'],
-        1: ['Beautiful bird!', 'So cute!', 'Is it real?'],
-        2: ['Lovely owl!', 'I love owls.', 'Amazing photography!'],
-        3: ['Haha, so funny!', 'Made my day!', 'Nice animation!'],
-      });
-
+class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final posts = ref.watch(postsProvider);
+  _HomeScreenState createState() => _HomeScreenState();
+}
 
+class _HomeScreenState extends State<HomeScreen> {
+  final List<Map<String, String>> posts = [
+    {
+      'imageUrl': 'https://media.giphy.com/media/EqVipgL5iu0ivcddvA/giphy.gif',
+      'title': 'Exciting Animation',
+      'description': 'Enjoy this amazing GIF with lots of fun!'
+    },
+    {
+      'imageUrl': 'https://pngimg.com/uploads/birds/birds_PNG9.png',
+      'title': 'Beautiful Bird',
+      'description': 'Look at this lovely bird flying in the sky.'
+    },
+    {
+      'imageUrl':
+          'http://www.pngmart.com/files/6/Barn-Owl-Transparent-Images-PNG.png',
+      'title': 'Majestic Owl',
+      'description': 'The wise old owl, a true symbol of knowledge.'
+    },
+    {
+      'imageUrl': 'https://media.giphy.com/media/6U6sno5AkUsOQ/giphy.gif',
+      'title': 'Funny Animation',
+      'description': 'Laugh out loud with this hilarious animation!'
+    },
+  ];
+
+  final Map<int, List<String>> comments = {
+    0: ['Amazing GIF!', 'Looks great!', 'Wow, nice one!'],
+    1: ['Beautiful bird!', 'So cute!', 'Is it real?'],
+    2: ['Lovely owl!', 'I love owls.', 'Amazing photography!'],
+    3: ['Haha, so funny!', 'Made my day!', 'Nice animation!'],
+  };
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Social App"),
@@ -72,7 +73,7 @@ class HomeScreen extends ConsumerWidget {
                     builder: (context) {
                       return CommentBottomSheet(
                         postIndex: index,
-                        commentsProvider: commentsProvider,
+                        comments: comments[index] ?? [],
                       );
                     },
                   );
@@ -224,19 +225,17 @@ class PostCard extends StatelessWidget {
   }
 }
 
-class CommentBottomSheet extends ConsumerWidget {
+class CommentBottomSheet extends StatelessWidget {
   final int postIndex;
-  final StateProvider<Map<int, List<String>>> commentsProvider;
+  final List<String> comments;
 
   const CommentBottomSheet({
     required this.postIndex,
-    required this.commentsProvider,
+    required this.comments,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final comments = ref.watch(commentsProvider)[postIndex] ?? [];
-
+  Widget build(BuildContext context) {
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.65,
       child: Padding(

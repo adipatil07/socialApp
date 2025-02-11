@@ -13,4 +13,11 @@ class RegistrationLoading extends RegistrationState {}
 
 class RegistrationSuccess extends RegistrationState {}
 
-class RegistrationFailure extends RegistrationState {}
+class RegistrationFailure extends RegistrationState {
+  final String message; // Store error message
+
+  const RegistrationFailure(this.message);
+
+  @override
+  List<Object> get props => [message];
+}

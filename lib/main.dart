@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:social_app/router/app_router.dart';
@@ -6,18 +7,16 @@ import 'package:social_app/cubit/comment_cubit.dart';
 import 'package:social_app/cubit/login_cubit.dart';
 import 'package:social_app/cubit/post_cubit.dart';
 import 'package:social_app/cubit/registration_cubit.dart';
-// import 'package:social_app/services/firebase_service.dart';
+import 'package:social_app/services/firebase_service.dart';
 
 void main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp(
-  //   options: DefaultFirebaseOptions.currentPlatform,
-  // );
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  // final FirebaseService _firebaseService = FirebaseService();
+  final FirebaseService _firebaseService = FirebaseService();
 
   MyApp({super.key});
 
@@ -25,7 +24,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => RegistrationCubit()),
+        BlocProvider(create: (context) => RegistrationCubit(_firebaseService)),
         BlocProvider(create: (context) => LoginCubit()),
         BlocProvider(create: (context) => PostCubit()),
         BlocProvider(create: (context) => CommentCubit()),

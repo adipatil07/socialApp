@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "157470376334",
+    "project_id": "imagefy-5da8c",
+    "storage_bucket": "imagefy-5da8c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:157470376334:android:51bb3166ae2f7a9b02e4df",
+        "android_client_info": {
+          "package_name": "com.example.social_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2GlsnT0mRO6IetSevMMaUf9PIbSzqYE8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

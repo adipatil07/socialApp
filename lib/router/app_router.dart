@@ -10,7 +10,7 @@ import 'package:social_app/presentation/screens/profile_page.dart';
 enum AppRoutes { home, splashScreen, login, register, account, profile }
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/login',
+  initialLocation: '/',
   debugLogDiagnostics: true,
   routes: [
     GoRoute(

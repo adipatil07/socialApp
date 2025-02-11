@@ -3,14 +3,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:social_app/models/user_model.dart';
 import 'package:social_app/models/post_model.dart';
 import 'package:social_app/models/comment_model.dart';
+import 'dart:io';
 
 class FirebaseService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String? _currentUserId;
+  String? _currentUsername;
 
   String? get currentUserId => _currentUserId;
+  String? get currentUsername => _currentUsername;
 
   Future<void> _storeUserId(String uid) async {
     // Store the user ID in a secure storage or another method
@@ -20,6 +23,11 @@ class FirebaseService {
   }
 
   Future<void> loadUserId() async {
+    // Load the user ID from the secure storage or another method
+    // For demonstration, we'll assume the user ID is already set
+    // _currentUserId = ...;
+  }
+  Future<void> loadUsername() async {
     // Load the user ID from the secure storage or another method
     // For demonstration, we'll assume the user ID is already set
     // _currentUserId = ...;
@@ -61,6 +69,7 @@ class FirebaseService {
         password: password,
       );
       _currentUserId = userCredential.user?.uid;
+      _currentUsername = userCredential.user?.displayName;
       if (_currentUserId != null) {
         await _storeUserId(_currentUserId!);
       }
@@ -77,18 +86,6 @@ class FirebaseService {
     // Clear the user ID from the secure storage or another method
     _currentUserId = null;
     print("User logged out");
-  }
-
-  Future<void> addPost(PostModel postModel) async {
-    try {
-      await _firestore
-          .collection('posts')
-          .doc(postModel.postId)
-          .set(postModel.toMap());
-    } catch (e) {
-      print("Error adding post: $e");
-      print("Stack trace: ${e}");
-    }
   }
 
   Future<void> likePost(String postId) async {
@@ -161,6 +158,46 @@ class FirebaseService {
     } catch (e) {
       print("Error getting user profile: $e");
       return null;
+    }
+  }
+
+  Future<void> savePostToDatabase(PostModel post) async {
+    await _firestore.collection('posts').doc(post.postId).set(post.toMap());
+  }
+
+  Future<List<PostModel>> getPosts() async {
+    final QuerySnapshot snapshot = await _firestore.collection('posts').get();
+    return snapshot.docs
+        .map((doc) => PostModel.fromMap(doc.data() as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<String> getUsername(String uid) async {
+    try {
+      final DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(uid).get();
+      if (userDoc.exists) {
+        return userDoc['username'] as String;
+      } else {
+        throw Exception('User not found');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch username: $e');
+    }
+  }
+
+  Future<List<PostModel>> fetchUserPosts(String username) async {
+    try {
+      final QuerySnapshot snapshot = await _firestore
+          .collection('posts')
+          .where('userName', isEqualTo: username)
+          .get();
+
+      return snapshot.docs.map((doc) {
+        return PostModel.fromDocumentSnapshot(doc);
+      }).toList();
+    } catch (e) {
+      throw Exception('Error fetching user posts: $e');
     }
   }
 }

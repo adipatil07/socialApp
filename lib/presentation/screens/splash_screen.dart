@@ -54,7 +54,7 @@ class _SplashScreenWrapperState extends State<SplashScreenWrapper> {
   void initState() {
     super.initState();
     Timer(Duration(seconds: 2), () {
-      context.go('/home');
+      context.go('/login');
     });
   }
 

@@ -13,24 +13,21 @@ import 'package:social_app/services/firebase_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  FirebaseService firebaseService = FirebaseService();
-  runApp(MyApp(firebaseService: firebaseService));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final FirebaseService firebaseService;
-
-  MyApp({required this.firebaseService, super.key});
+  final FirebaseService _firebaseService = FirebaseService();
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => RegistrationCubit(firebaseService)),
-        BlocProvider(create: (context) => LoginCubit(firebaseService)),
-        BlocProvider(create: (context) => PostCubit()),
-        BlocProvider(create: (context) => CommentCubit()),
-        BlocProvider(create: (context) => ProfileCubit(firebaseService)),
+        BlocProvider(create: (context) => RegistrationCubit(_firebaseService)),
+        BlocProvider(create: (context) => LoginCubit(_firebaseService)),
+        BlocProvider(create: (context) => PostCubit(_firebaseService)),
+        BlocProvider(create: (context) => CommentCubit(_firebaseService)),
+        BlocProvider(create: (context) => ProfileCubit(_firebaseService)),
       ],
       child: MaterialApp.router(
         routerConfig: appRouter,

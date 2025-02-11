@@ -1,11 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class PostModel {
   final String postId;
   final DateTime timestamp;
   final String userName;
   final int likeCount;
-  final List<String> comments;
+  final List<dynamic> comments;
   final String caption;
-  final String imageUrl;
+  final String image;
 
   PostModel({
     required this.postId,
@@ -14,30 +16,35 @@ class PostModel {
     required this.likeCount,
     required this.comments,
     required this.caption,
-    required this.imageUrl,
+    required this.image,
   });
-
-  Map<String, dynamic> toMap() {
-    return {
-      'postId': postId,
-      'timestamp': timestamp.toIso8601String(),
-      'userName': userName,
-      'likeCount': likeCount,
-      'comments': comments,
-      'caption': caption,
-      'imageUrl': imageUrl,
-    };
-  }
 
   factory PostModel.fromMap(Map<String, dynamic> map) {
     return PostModel(
       postId: map['postId'],
-      timestamp: DateTime.parse(map['timestamp']),
+      timestamp: (map['timestamp'] as Timestamp).toDate(),
       userName: map['userName'],
       likeCount: map['likeCount'],
-      comments: List<String>.from(map['comments']),
+      comments: List<dynamic>.from(map['comments']),
       caption: map['caption'],
-      imageUrl: map['imageUrl'],
+      image: map['image'],
     );
+  }
+
+  factory PostModel.fromDocumentSnapshot(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return PostModel.fromMap(data);
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'postId': postId,
+      'timestamp': timestamp,
+      'userName': userName,
+      'likeCount': likeCount,
+      'comments': comments,
+      'caption': caption,
+      'image': image,
+    };
   }
 }

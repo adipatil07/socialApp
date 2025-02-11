@@ -1,7 +1,11 @@
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:social_app/core/utils/app_colors.dart';
+import 'package:social_app/cubit/post_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:social_app/services/firebase_service.dart';
 
 class AddPostPage extends StatefulWidget {
   const AddPostPage({super.key});
@@ -15,6 +19,24 @@ class _AddPostPageState extends State<AddPostPage> {
   final TextEditingController descriptionController = TextEditingController();
   File? selectedFile; // Holds the selected image/GIF
   final ImagePicker _picker = ImagePicker();
+  String? userName;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUsername();
+  }
+
+  Future<void> _loadUsername() async {
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      final String fetchedUsername =
+          await FirebaseService().getUsername(currentUser.uid);
+      setState(() {
+        userName = fetchedUsername;
+      });
+    }
+  }
 
   Future<void> _pickImage() async {
     final XFile? pickedFile = await _picker.pickImage(
@@ -44,26 +66,18 @@ class _AddPostPageState extends State<AddPostPage> {
 
   void _savePost() {
     final String title = titleController.text.trim();
-    final String description = descriptionController.text.trim();
 
-    if (selectedFile == null) {
+    if (title.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please select an image or GIF.")),
+        const SnackBar(content: Text("Caption cannot be empty.")),
       );
       return;
     }
 
-    if (title.isEmpty || description.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Title and description cannot be empty.")),
-      );
-      return;
-    }
-
-    // Save the post to your backend or local state here
-    // print("Title: $title");
-    // print("Description: $description");
-    // print("File Path: ${selectedFile!.path}");
+    // Save the post using Bloc
+    context.read<PostCubit>().addPost(
+          caption: title,
+        );
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Post added successfully!")),
@@ -113,6 +127,7 @@ class _AddPostPageState extends State<AddPostPage> {
           ),
         ),
         backgroundColor: AppColors.secondaryColor,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -120,6 +135,13 @@ class _AddPostPageState extends State<AddPostPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // if (userName != null)
+              //   Text(
+              //     "Posting as: $userName",
+              //     style: const TextStyle(
+              //         fontSize: 16.0, fontWeight: FontWeight.bold),
+              //   ),
+              const SizedBox(height: 8.0),
               const Text(
                 "Selected Image/GIF:",
                 style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),

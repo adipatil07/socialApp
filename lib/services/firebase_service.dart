@@ -8,6 +8,23 @@ class FirebaseService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  String? _currentUserId;
+
+  String? get currentUserId => _currentUserId;
+
+  Future<void> _storeUserId(String uid) async {
+    // Store the user ID in a secure storage or another method
+    // For demonstration, we'll use a simple in-memory storage
+    _currentUserId = uid;
+    print("Stored user ID: $_currentUserId");
+  }
+
+  Future<void> loadUserId() async {
+    // Load the user ID from the secure storage or another method
+    // For demonstration, we'll assume the user ID is already set
+    // _currentUserId = ...;
+  }
+
   Future<User?> registerUser(UserModel userModel) async {
     try {
       UserCredential userCredential =
@@ -27,6 +44,7 @@ class FirebaseService {
           'guardianEmail': userModel.guardianEmail,
           'uid': user.uid,
         });
+        await _storeUserId(user.uid);
       }
 
       return user;
@@ -42,12 +60,23 @@ class FirebaseService {
         email: email,
         password: password,
       );
+      _currentUserId = userCredential.user?.uid;
+      if (_currentUserId != null) {
+        await _storeUserId(_currentUserId!);
+      }
+      print("Logged in user ID: $_currentUserId");
       return userCredential.user;
     } catch (e) {
-      print("Error during user login: $e");
-      print("Stack trace: ${e.toString()}");
+      print("Firebase Login Error: $e");
       return null;
     }
+  }
+
+  Future<void> logoutUser() async {
+    await _auth.signOut();
+    // Clear the user ID from the secure storage or another method
+    _currentUserId = null;
+    print("User logged out");
   }
 
   Future<void> addPost(PostModel postModel) async {
@@ -114,6 +143,24 @@ class FirebaseService {
     } catch (e) {
       print("Error checking username: $e");
       return false;
+    }
+  }
+
+  Future<UserModel?> getUserProfile(String uid) async {
+    try {
+      print("Fetching profile for user ID: $uid");
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(uid).get();
+      if (userDoc.exists) {
+        print("User profile found: ${userDoc.data()}");
+        return UserModel.fromMap(userDoc.data() as Map<String, dynamic>);
+      } else {
+        print("User not found");
+        return null;
+      }
+    } catch (e) {
+      print("Error getting user profile: $e");
+      return null;
     }
   }
 }

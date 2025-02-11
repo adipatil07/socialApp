@@ -125,10 +125,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           );
                           context.go('/home'); // Navigate to home page
                         } else if (state is RegistrationFailure) {
-                          print("RegistrationFailure state received in UI");
-                          String errorMessage = state is RegistrationFailure
-                              ? state.message
-                              : "Registration Failed";
+                          // print("RegistrationFailure state received in UI");
+                          String errorMessage = state.message;
+
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(errorMessage)),
                           );

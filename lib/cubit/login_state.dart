@@ -14,3 +14,12 @@ class LoginLoading extends LoginState {}
 class LoginSuccess extends LoginState {}
 
 class LoginFailure extends LoginState {}
+
+class LoginInvalid extends LoginState {
+  final String message;
+
+  const LoginInvalid(this.message);
+
+  @override
+  List<Object> get props => [message];
+}

@@ -3,19 +3,34 @@ class UserModel {
   final String username;
   final String phone;
   final String email;
-  final String password;
   final String guardianPhone;
   final String guardianEmail;
+  final String? uid;
+  final String password;
 
   UserModel({
     required this.name,
     required this.username,
     required this.phone,
     required this.email,
-    required this.password,
     required this.guardianPhone,
     required this.guardianEmail,
+    this.uid,
+    required this.password,
   });
+
+  factory UserModel.fromMap(Map<String, dynamic> map) {
+    return UserModel(
+      name: map['name'] ?? '',
+      username: map['username'] ?? '',
+      phone: map['phone'] ?? '',
+      email: map['email'] ?? '',
+      guardianPhone: map['guardianPhone'] ?? '',
+      guardianEmail: map['guardianEmail'] ?? '',
+      uid: map['uid'] ?? '',
+      password: map['password'] ?? '',
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -23,21 +38,9 @@ class UserModel {
       'username': username,
       'phone': phone,
       'email': email,
-      'password': password,
       'guardianPhone': guardianPhone,
       'guardianEmail': guardianEmail,
+      'password': password,
     };
-  }
-
-  factory UserModel.fromMap(Map<String, dynamic> map) {
-    return UserModel(
-      name: map['name'],
-      username: map['username'],
-      phone: map['phone'],
-      email: map['email'],
-      password: map['password'],
-      guardianPhone: map['guardianPhone'],
-      guardianEmail: map['guardianEmail'],
-    );
   }
 }

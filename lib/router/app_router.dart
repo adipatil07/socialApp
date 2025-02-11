@@ -5,11 +5,12 @@ import 'package:social_app/presentation/screens/splash_screen.dart';
 import 'package:social_app/presentation/screens/login_page.dart';
 import 'package:social_app/presentation/screens/registration_page.dart';
 import 'package:social_app/presentation/screens/account_page.dart';
+import 'package:social_app/presentation/screens/profile_page.dart';
 
-enum AppRoutes { home, splashScreen, login, register, account }
+enum AppRoutes { home, splashScreen, login, register, account, profile }
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/register',
+  initialLocation: '/login',
   debugLogDiagnostics: true,
   routes: [
     GoRoute(
@@ -54,6 +55,15 @@ final GoRouter appRouter = GoRouter(
       pageBuilder: (context, state) {
         return MaterialPage(
           child: AccountPage(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/profile',
+      name: AppRoutes.profile.name,
+      pageBuilder: (context, state) {
+        return MaterialPage(
+          child: ProfilePage(),
         );
       },
     ),

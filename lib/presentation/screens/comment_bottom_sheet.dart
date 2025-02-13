@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_app/cubit/comment_cubit.dart';
-import 'package:social_app/models/comment_model.dart';
 import 'package:date_time_ago/date_time_ago.dart';
 import 'package:social_app/services/firebase_service.dart';
 

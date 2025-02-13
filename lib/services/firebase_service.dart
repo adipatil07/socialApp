@@ -9,7 +9,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 class FirebaseService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  // final FirebaseStorage _storage = FirebaseStorage.instance;
 
   String? _currentUserId;
   String? _currentUsername;
@@ -226,6 +226,22 @@ class FirebaseService {
     } catch (e) {
       print("Error uploading image: $e");
       return Future.error(e);
+    }
+  }
+
+  Future<void> storeDetectedEmotion(String userId, String emotion) async {
+    try {
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('emotions')
+          .add({
+        'emotion': emotion,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+      print("Emotion stored successfully!");
+    } catch (e) {
+      print("Error storing emotion: $e");
     }
   }
 }

@@ -3,8 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:social_app/core/utils/app_colors.dart';
-import 'package:social_app/cubit/post_cubit.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:social_app/core/utils/emotion_detector.dart';
 import 'package:social_app/models/post_model.dart';
 import 'package:social_app/services/firebase_service.dart';
 
@@ -21,6 +20,11 @@ class _AddPostPageState extends State<AddPostPage> {
   File? selectedFile; // Holds the selected image/GIF
   final ImagePicker _picker = ImagePicker();
   String? userName;
+  EmotionDetector emotionDetector = EmotionDetector();
+
+  void analyseTextEmotion(String userText) async {
+    String? detectedEmotion = await emotionDetector.detectEmotion(userText);
+  }
 
   @override
   void initState() {
@@ -100,6 +104,13 @@ class _AddPostPageState extends State<AddPostPage> {
       print("Saving post to database...");
       await FirebaseService().savePostToDatabase(post);
       print("Post saved successfully!");
+
+      // Store detected emotion
+      String? detectedEmotion = await emotionDetector.detectEmotion(title);
+      if (detectedEmotion != null && userName != null) {
+        await FirebaseService().storeDetectedEmotion(
+            FirebaseAuth.instance.currentUser!.uid, detectedEmotion);
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Post added successfully!")),

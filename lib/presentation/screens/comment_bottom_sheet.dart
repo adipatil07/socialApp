@@ -77,21 +77,32 @@ class CommentBottomSheet extends StatelessWidget {
                               },
                             ),
                     ),
-                    TextField(
-                      controller: commentController,
-                      decoration: InputDecoration(
-                        labelText: "Add a comment",
-                        border: OutlineInputBorder(),
+                    SingleChildScrollView(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: commentController,
+                              decoration: InputDecoration(
+                                labelText: "Add a comment",
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.send),
+                            onPressed: () {
+                              final commentText = commentController.text.trim();
+                              if (commentText.isNotEmpty) {
+                                context
+                                    .read<CommentCubit>()
+                                    .addComment(postId, commentText);
+                                commentController.clear();
+                              }
+                            },
+                          ),
+                        ],
                       ),
-                      onSubmitted: (value) {
-                        final commentText = commentController.text.trim();
-                        if (commentText.isNotEmpty) {
-                          context
-                              .read<CommentCubit>()
-                              .addComment(postId, commentText);
-                          commentController.clear();
-                        }
-                      },
                     ),
                   ],
                 ),

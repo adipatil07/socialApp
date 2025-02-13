@@ -12,13 +12,16 @@ class PostCubit extends Cubit<PostState> {
 
   PostCubit(this._firebaseService) : super(PostInitial());
 
-  Future<void> fetchPosts() async {
+  Future<PostState> fetchPosts() async {
     try {
-      emit(PostLoading());
       final posts = await _firebaseService.getPosts();
-      emit(PostLoaded(posts));
+      final postState = PostLoaded(posts);
+      emit(postState);
+      return postState;
     } catch (e) {
-      emit(PostError(e.toString()));
+      final errorState = PostError(e.toString());
+      emit(errorState);
+      return errorState;
     }
   }
 
@@ -72,13 +75,16 @@ class PostCubit extends Cubit<PostState> {
     }
   }
 
-  Future<void> fetchUserPosts(String username) async {
+  Future<PostState> fetchUserPosts(String username) async {
     try {
-      emit(PostLoading());
       final posts = await _firebaseService.fetchUserPosts(username);
-      emit(PostLoaded(posts));
+      final postState = PostLoaded(posts);
+      emit(postState);
+      return postState;
     } catch (e) {
-      emit(PostError(e.toString()));
+      final errorState = PostError(e.toString());
+      emit(errorState);
+      return errorState;
     }
   }
 }

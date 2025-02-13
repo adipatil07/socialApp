@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:social_app/core/utils/app_colors.dart';
+import 'package:social_app/models/post_model.dart';
 import 'package:social_app/presentation/screens/add_post_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_app/cubit/post_cubit.dart';
@@ -41,9 +42,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _fetchPosts() {
     if (showAllPosts) {
-      context.read<PostCubit>().fetchPosts();
+      context.read<PostCubit>().fetchPosts().then((state) {
+        if (state is PostLoaded) {
+          _fetchLikeCounts(state.posts);
+        }
+      });
     } else {
-      context.read<PostCubit>().fetchUserPosts(currentUsername!);
+      context.read<PostCubit>().fetchUserPosts(currentUsername!).then((state) {
+        if (state is PostLoaded) {
+          _fetchLikeCounts(state.posts);
+        }
+      });
+    }
+  }
+
+  Future<void> _fetchLikeCounts(List<PostModel> posts) async {
+    for (var post in posts) {
+      final likeCount = await FirebaseService().getLikeCount(post.postId);
+      setState(() {
+        likeCounts[post.postId] = likeCount;
+      });
     }
   }
 
@@ -55,11 +73,11 @@ class _HomeScreenState extends State<HomeScreen> {
       likedPosts[postId] = !(likedPosts[postId] ?? false);
       if (likedPosts[postId]!) {
         likeCounts[postId] = (likeCounts[postId] ?? 0) + 1;
+        context.read<PostCubit>().likePost(postId);
       } else {
         likeCounts[postId] = (likeCounts[postId] ?? 1) - 1;
       }
     });
-    context.read<PostCubit>().likePost(postId);
   }
 
   @override
@@ -136,38 +154,36 @@ class _HomeScreenState extends State<HomeScreen> {
                     return Center(child: CircularProgressIndicator());
                   } else if (state is PostLoaded) {
                     final posts = state.posts;
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 16.0, horizontal: 4),
-                      child: ListView.builder(
-                        itemCount: posts.length,
-                        itemBuilder: (context, index) {
-                          final post = posts[index];
-                          return PostCard(
-                            username: post.userName,
-                            caption: post.caption,
-                            postTime: post.timestamp,
-                            onCommentTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(16.0),
-                                  ),
+                    return PageView.builder(
+                      itemCount: posts.length,
+                      pageSnapping: true,
+                      scrollDirection: Axis.vertical,
+                      itemBuilder: (context, index) {
+                        final post = posts[index];
+                        return PostCard(
+                          username: post.userName,
+                          imageUrl: post.image,
+                          caption: post.caption,
+                          postTime: post.timestamp,
+                          onCommentTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(16.0),
                                 ),
-                                builder: (context) {
-                                  return CommentBottomSheet(
-                                      postId: post.postId);
-                                },
-                              );
-                            },
-                            onLikeTap: () => _likePost(post.postId),
-                            isLiked: likedPosts[post.postId] ?? false,
-                            likeCount: likeCounts[post.postId] ?? 0,
-                          );
-                        },
-                      ),
+                              ),
+                              builder: (context) {
+                                return CommentBottomSheet(postId: post.postId);
+                              },
+                            );
+                          },
+                          onLikeTap: () => _likePost(post.postId),
+                          isLiked: likedPosts[post.postId] ?? false,
+                          likeCount: likeCounts[post.postId] ?? 0,
+                        );
+                      },
                     );
                   } else if (state is PostError) {
                     return Center(child: Text(state.message));

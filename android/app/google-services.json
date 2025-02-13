@@ -1,13 +1,52 @@
 {
   "project_info": {
-    "project_number": "157470376334",
-    "project_id": "imagefy-5da8c",
-    "storage_bucket": "imagefy-5da8c.firebasestorage.app"
+    "project_number": "1079052565386",
+    "firebase_url": "https://docverifier-96db7-default-rtdb.firebaseio.com",
+    "project_id": "docverifier-96db7",
+    "storage_bucket": "docverifier-96db7.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:157470376334:android:51bb3166ae2f7a9b02e4df",
+        "mobilesdk_app_id": "1:1079052565386:android:c6d73af394172d7d086673",
+        "android_client_info": {
+          "package_name": "com.example.docverifier"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZ4TPGDSL7J9DKJ1_UGOQXo072kn_BJHE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1079052565386:android:ec16c77b248c24d1086673",
+        "android_client_info": {
+          "package_name": "com.example.edunotes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZ4TPGDSL7J9DKJ1_UGOQXo072kn_BJHE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1079052565386:android:28a9640698acfc8a086673",
         "android_client_info": {
           "package_name": "com.example.social_app"
         }
@@ -15,7 +54,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyC2GlsnT0mRO6IetSevMMaUf9PIbSzqYE8"
+          "current_key": "AIzaSyDZ4TPGDSL7J9DKJ1_UGOQXo072kn_BJHE"
         }
       ],
       "services": {

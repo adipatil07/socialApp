@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:social_app/core/utils/app_colors.dart';
 import 'package:social_app/cubit/post_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:social_app/models/post_model.dart';
 import 'package:social_app/services/firebase_service.dart';
 
 class AddPostPage extends StatefulWidget {
@@ -64,7 +65,7 @@ class _AddPostPageState extends State<AddPostPage> {
     }
   }
 
-  void _savePost() {
+  void _savePost() async {
     final String title = titleController.text.trim();
 
     if (title.isEmpty) {
@@ -74,16 +75,43 @@ class _AddPostPageState extends State<AddPostPage> {
       return;
     }
 
-    // Save the post using Bloc
-    context.read<PostCubit>().addPost(
-          caption: title,
-        );
+    if (selectedFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please select an image.")),
+      );
+      return;
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Post added successfully!")),
-    );
+    try {
+      print("Uploading image...");
+      String imageUrl = await FirebaseService().uploadImage(selectedFile!);
+      print("Image uploaded: $imageUrl");
 
-    Navigator.pop(context); // Return to the previous screen
+      final post = PostModel(
+        postId: DateTime.now().millisecondsSinceEpoch.toString(),
+        timestamp: DateTime.now(),
+        userName: userName!,
+        likeCount: 0,
+        comments: [],
+        caption: title,
+        image: imageUrl,
+      );
+
+      print("Saving post to database...");
+      await FirebaseService().savePostToDatabase(post);
+      print("Post saved successfully!");
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Post added successfully!")),
+      );
+
+      Navigator.pop(context); // Return to the previous screen
+    } catch (e) {
+      print("Error adding post: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error adding post: $e")),
+      );
+    }
   }
 
   Widget _buildTextField(String label, TextEditingController controller,

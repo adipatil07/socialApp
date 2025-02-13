@@ -4,10 +4,12 @@ import 'package:social_app/models/user_model.dart';
 import 'package:social_app/models/post_model.dart';
 import 'package:social_app/models/comment_model.dart';
 import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class FirebaseService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   String? _currentUserId;
   String? _currentUsername;
@@ -89,20 +91,20 @@ class FirebaseService {
   }
 
   Future<void> likePost(String postId) async {
-    try {
-      DocumentReference postRef = _firestore.collection('posts').doc(postId);
-      await _firestore.runTransaction((transaction) async {
-        DocumentSnapshot postSnapshot = await transaction.get(postRef);
-        if (!postSnapshot.exists) {
-          throw Exception("Post does not exist!");
-        }
-        int newLikeCount = postSnapshot['likeCount'] + 1;
-        transaction.update(postRef, {'likeCount': newLikeCount});
-      });
-    } catch (e) {
-      print("Error liking post: $e");
-      print("Stack trace: ${e}");
-    }
+    final docRef = _firestore.collection('posts').doc(postId);
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(docRef);
+      if (!snapshot.exists) {
+        throw Exception("Post does not exist!");
+      }
+      final newLikeCount = (snapshot.data()?['likeCount'] ?? 0) + 1;
+      transaction.update(docRef, {'likeCount': newLikeCount});
+    });
+  }
+
+  Future<int> getLikeCount(String postId) async {
+    final doc = await _firestore.collection('posts').doc(postId).get();
+    return doc.data()?['likeCount'] ?? 0;
   }
 
   Future<void> addComment(String postId, CommentModel commentModel) async {
@@ -198,6 +200,32 @@ class FirebaseService {
       }).toList();
     } catch (e) {
       throw Exception('Error fetching user posts: $e');
+    }
+  }
+
+  Future<String> uploadImage(File imageFile) async {
+    try {
+      String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+      Reference storageRef =
+          FirebaseStorage.instance.ref().child('depressionDetection/$fileName');
+
+      print("Starting upload...");
+      UploadTask uploadTask = storageRef.putFile(imageFile);
+
+      uploadTask.snapshotEvents.listen((event) {
+        print("Progress: ${event.bytesTransferred}/${event.totalBytes}");
+      });
+
+      TaskSnapshot snapshot = await uploadTask;
+      print("Upload complete!");
+
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+      print("Download URL: $downloadUrl");
+
+      return downloadUrl;
+    } catch (e) {
+      print("Error uploading image: $e");
+      return Future.error(e);
     }
   }
 }

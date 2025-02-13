@@ -9,6 +9,7 @@ class PostCard extends StatelessWidget {
   final bool isLiked;
   final int likeCount;
   final String username; // New property
+  final String imageUrl; // New property
 
   const PostCard({
     super.key,
@@ -19,6 +20,7 @@ class PostCard extends StatelessWidget {
     required this.isLiked,
     required this.likeCount,
     required this.username, // New property
+    required this.imageUrl,
   });
 
   @override
@@ -33,7 +35,16 @@ class PostCard extends StatelessWidget {
             SizedBox(
               height: 10,
             ),
-            Image.asset("assets/images/logo.webp"),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: Image.network(
+                imageUrl,
+                height: MediaQuery.of(context).size.height *
+                    0.5, // Set a fixed height
+                width: double.infinity,
+                fit: BoxFit.cover, // Ensure the image covers the area
+              ),
+            ),
             SizedBox(height: 8.0),
             Text(username),
             SizedBox(height: 8.0),

@@ -1,9 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_app/cubit/profile_cubit.dart';
 import 'package:social_app/core/utils/app_colors.dart';
 import 'package:social_app/models/user_model.dart';
-import 'package:social_app/services/firebase_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:social_app/router/app_router.dart';
 
@@ -66,7 +66,6 @@ class ProfilePage extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
 
-                      // Name, Username & Email with Glassmorphism Effect
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 20),
                         padding: const EdgeInsets.all(16),
@@ -113,29 +112,17 @@ class ProfilePage extends StatelessWidget {
 
                       const SizedBox(height: 20),
 
-                      // Action Buttons
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _buildActionButton(Icons.edit, 'Edit Profile', () {
-                              // Navigate to Edit Profile Page
-                            }),
-                            _buildActionButton(Icons.logout, 'Logout',
-                                () async {
-                              await context
-                                  .read<FirebaseService>()
-                                  .logoutUser();
-                              context.goNamed(AppRoutes.login.name);
-                            }),
-                          ],
-                        ),
+                        child: _buildActionButton(Icons.logout, 'Logout',
+                            () async {
+                          await FirebaseAuth.instance.signOut();
+                          context.goNamed(AppRoutes.login.name);
+                        }),
                       ),
 
                       const SizedBox(height: 20),
 
-                      // Posts Section Placeholder (if applicable)
                       Expanded(
                         child: Center(
                           child: Text(

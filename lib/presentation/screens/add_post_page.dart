@@ -21,6 +21,7 @@ class _AddPostPageState extends State<AddPostPage> {
   final ImagePicker _picker = ImagePicker();
   String? userName;
   EmotionDetector emotionDetector = EmotionDetector();
+  bool _isLoading = false;
 
   void analyseTextEmotion(String userText) async {
     String? detectedEmotion = await emotionDetector.detectEmotion(userText);
@@ -86,6 +87,10 @@ class _AddPostPageState extends State<AddPostPage> {
       return;
     }
 
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
       print("Uploading image...");
       String imageUrl = await FirebaseService().uploadImage(selectedFile!);
@@ -122,6 +127,10 @@ class _AddPostPageState extends State<AddPostPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error adding post: $e")),
       );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -257,7 +266,7 @@ class _AddPostPageState extends State<AddPostPage> {
               const SizedBox(height: 16.0),
               Center(
                 child: ElevatedButton(
-                  onPressed: _savePost,
+                  onPressed: _isLoading ? null : _savePost,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 40.0, vertical: 16.0),
@@ -266,14 +275,16 @@ class _AddPostPageState extends State<AddPostPage> {
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                   ),
-                  child: const Text(
-                    "Save Post",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: _isLoading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          "Save Post",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
             ],

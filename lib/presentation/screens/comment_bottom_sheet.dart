@@ -4,18 +4,24 @@ import 'package:social_app/cubit/comment_cubit.dart';
 import 'package:date_time_ago/date_time_ago.dart';
 import 'package:social_app/services/firebase_service.dart';
 
-class CommentBottomSheet extends StatelessWidget {
+class CommentBottomSheet extends StatefulWidget {
   final String postId;
 
   const CommentBottomSheet({required this.postId});
 
   @override
-  Widget build(BuildContext context) {
-    final TextEditingController commentController = TextEditingController();
+  _CommentBottomSheetState createState() => _CommentBottomSheetState();
+}
 
+class _CommentBottomSheetState extends State<CommentBottomSheet> {
+  final TextEditingController commentController = TextEditingController();
+  bool _isSendingComment = false;
+
+  @override
+  Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-          CommentCubit(FirebaseService())..fetchComments(postId),
+          CommentCubit(FirebaseService())..fetchComments(widget.postId),
       child: BlocBuilder<CommentCubit, CommentState>(
         builder: (context, state) {
           if (state is CommentLoading) {
@@ -89,16 +95,31 @@ class CommentBottomSheet extends StatelessWidget {
                             ),
                           ),
                           IconButton(
-                            icon: Icon(Icons.send),
-                            onPressed: () {
-                              final commentText = commentController.text.trim();
-                              if (commentText.isNotEmpty) {
-                                context
-                                    .read<CommentCubit>()
-                                    .addComment(postId, commentText);
-                                commentController.clear();
-                              }
-                            },
+                            icon: _isSendingComment
+                                ? CircularProgressIndicator()
+                                : Icon(Icons.send),
+                            onPressed: _isSendingComment
+                                ? null
+                                : () async {
+                                    final commentText =
+                                        commentController.text.trim();
+                                    if (commentText.isNotEmpty) {
+                                      setState(() {
+                                        _isSendingComment = true;
+                                      });
+
+                                      await context
+                                          .read<CommentCubit>()
+                                          .addComment(
+                                              widget.postId, commentText);
+
+                                      setState(() {
+                                        _isSendingComment = false;
+                                      });
+
+                                      commentController.clear();
+                                    }
+                                  },
                           ),
                         ],
                       ),

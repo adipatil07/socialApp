@@ -15,13 +15,22 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
 
-  void _login() {
+  void _login() async {
     if (_formKey.currentState?.validate() ?? false) {
+      setState(() {
+        _isLoading = true;
+      });
+
       String email = emailController.text.trim();
       String password = passwordController.text.trim();
 
-      context.read<LoginCubit>().loginUser(email, password);
+      await context.read<LoginCubit>().loginUser(email, password);
+
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -117,7 +126,7 @@ class _LoginPageState extends State<LoginPage> {
                             isPassword: true, validator: _validatePassword),
                         const SizedBox(height: 24.0),
                         ElevatedButton(
-                          onPressed: _login,
+                          onPressed: _isLoading ? null : _login,
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 40, vertical: 14),
@@ -126,14 +135,16 @@ class _LoginPageState extends State<LoginPage> {
                                 borderRadius: BorderRadius.circular(12.0)),
                             elevation: 5,
                           ),
-                          child: const Text(
-                            "Login",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
+                          child: _isLoading
+                              ? CircularProgressIndicator(color: Colors.white)
+                              : const Text(
+                                  "Login",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
                         ),
                         const SizedBox(height: 10),
                         Row(

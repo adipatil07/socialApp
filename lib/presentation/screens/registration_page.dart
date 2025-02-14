@@ -23,6 +23,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   final _formKey = GlobalKey<FormState>();
   bool _isUsernameTaken = false;
+  bool _isLoading = false;
 
   Future<void> _checkUsername(String username) async {
     _isUsernameTaken =
@@ -30,10 +31,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
     setState(() {});
   }
 
-  void _register() {
+  void _register() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
+
+    setState(() {
+      _isLoading = true;
+    });
 
     String name = nameController.text.trim();
     String username = usernameController.text.trim();
@@ -53,7 +58,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
       guardianEmail: guardianEmail,
     );
 
-    context.read<RegistrationCubit>().registerUser(userModel);
+    await context.read<RegistrationCubit>().registerUser(userModel);
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Widget _buildTextField(String label, TextEditingController controller,
@@ -248,7 +257,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             ),
                             const SizedBox(height: 24.0),
                             ElevatedButton(
-                              onPressed: _register,
+                              onPressed: _isLoading ? null : _register,
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 40, vertical: 14),
@@ -257,14 +266,17 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                     borderRadius: BorderRadius.circular(12.0)),
                                 elevation: 5,
                               ),
-                              child: const Text(
-                                "Register",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
+                              child: _isLoading
+                                  ? CircularProgressIndicator(
+                                      color: Colors.white)
+                                  : const Text(
+                                      "Register",
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                             ),
                             const SizedBox(height: 10),
                             Row(

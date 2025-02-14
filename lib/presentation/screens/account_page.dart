@@ -1,12 +1,27 @@
 import 'package:flutter/material.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 
-class AccountPage extends StatelessWidget {
+class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
 
+  @override
+  _AccountPageState createState() => _AccountPageState();
+}
+
+class _AccountPageState extends State<AccountPage> {
+  bool _isSigningOut = false;
+
   void _signOut(BuildContext context) async {
+    setState(() {
+      _isSigningOut = true;
+    });
+
     // await FirebaseAuth.instance.signOut();
     Navigator.of(context).pushReplacementNamed('/login');
+
+    setState(() {
+      _isSigningOut = false;
+    });
   }
 
   @override
@@ -17,8 +32,10 @@ class AccountPage extends StatelessWidget {
       ),
       body: Center(
         child: ElevatedButton(
-          onPressed: () => _signOut(context),
-          child: Text("Sign Out"),
+          onPressed: _isSigningOut ? null : () => _signOut(context),
+          child: _isSigningOut
+              ? CircularProgressIndicator(color: Colors.white)
+              : Text("Sign Out"),
         ),
       ),
     );

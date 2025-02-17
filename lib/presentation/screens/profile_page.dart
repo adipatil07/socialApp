@@ -9,10 +9,11 @@ import 'package:social_app/router/app_router.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
-
   @override
   Widget build(BuildContext context) {
     context.read<ProfileCubit>().loadUserProfile();
+
+    
 
     return Scaffold(
       appBar: AppBar(
@@ -120,6 +121,7 @@ class ProfilePage extends StatelessWidget {
                           context.goNamed(AppRoutes.login.name);
                         }),
                       ),
+
 
                       const SizedBox(height: 20),
 

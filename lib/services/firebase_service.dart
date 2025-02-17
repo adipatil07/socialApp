@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server/gmail.dart';
 import 'package:social_app/models/user_model.dart';
 import 'package:social_app/models/post_model.dart';
 import 'package:social_app/models/comment_model.dart';
@@ -16,6 +19,9 @@ class FirebaseService {
 
   String? get currentUserId => _currentUserId;
   String? get currentUsername => _currentUsername;
+
+  final gmailSmtp =
+      gmail(dotenv.env["GMAIL_NAME"]!, dotenv.env["GMAIL_PASSWORD"]!);
 
   Future<void> _storeUserId(String uid) async {
     // Store the user ID in a secure storage or another method
@@ -229,6 +235,25 @@ class FirebaseService {
     }
   }
 
+  Future<String?> getGuardianEmail(String userId) async {
+    try {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (userDoc.exists) {
+        return userDoc['guardianEmail'] as String?;
+      } else {
+        print("User document not found!");
+        return null;
+      }
+    } catch (e) {
+      print("Error fetching guardian email: $e");
+      return null;
+    }
+  }
+
   Future<void> storeDetectedEmotion(String userId, String emotion) async {
     try {
       await _firestore
@@ -240,8 +265,76 @@ class FirebaseService {
         'timestamp': FieldValue.serverTimestamp(),
       });
       print("Emotion stored successfully!");
+      String? guardianMail = await getGuardianEmail(userId);
+      checkAndSendEmail(userId, guardianMail!);
     } catch (e) {
       print("Error storing emotion: $e");
+    }
+  }
+
+  sendMail(String guardianMail, emotion, userName) async {
+    print(guardianMail);
+    print(emotion);
+    print(userName);
+    final msg = Message()
+      ..from = Address(dotenv.env["GMAIL_NAME"]!)
+      ..recipients.add(guardianMail)
+      ..subject = """Concern Regarding $userName’s Emotional Well-being"""
+      ..text = """Respected Sir / Ma'am,
+
+I hope this email finds you well. We are reaching out to share an important update regarding $userName’s recent activity on our platform, 
+
+Our system, which monitors emotional patterns in user posts to ensure their well-being, has detected that $userName has recently expressed consistent emotions of $emotion in their last three posts. While we respect user privacy, we believe it’s important to keep loved ones informed when such patterns emerge.
+
+🔹 Detected Sentiment: $emotion
+
+We encourage open conversations and checking in with $userName to ensure their well-being. If needed, you might consider offering support, discussing their feelings, or seeking professional guidance.
+
+If you have any concerns or need further assistance, please feel free to reach out to us. Your support means the world to them.
+
+Best regards,
+Imagefy Team
+
+""";
+
+    try {
+      final sendReport = await send(msg, gmailSmtp);
+      print('${sendReport}');
+    } on MailerException catch (e) {
+      for (var p in e.problems) {
+        print("${p.code}, ${p.msg}");
+      }
+    }
+  }
+
+  Future<void> checkAndSendEmail(String userId, String guardianEmail) async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('emotions')
+          .orderBy('timestamp', descending: true)
+          .limit(3)
+          .get();
+
+      if (snapshot.docs.length < 3) {
+        print("Not enough emotions recorded yet.");
+        return;
+      }
+
+      List<String> emotions =
+          snapshot.docs.map((doc) => doc['emotion'] as String).toList();
+
+      if (emotions.toSet().length == 1) {
+        String emotion = emotions.first;
+        print("User has consistent emotion: $emotion. Sending email...");
+        String username = await getUsername(userId);
+        await sendMail(guardianEmail, emotion, username);
+      } else {
+        print("Emotions are not the same, no email sent.");
+      }
+    } catch (e) {
+      print("Error fetching emotions: $e");
     }
   }
 }

@@ -259,6 +259,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             ElevatedButton(
                               onPressed: _isLoading ? null : _register,
                               style: ElevatedButton.styleFrom(
+                                fixedSize: Size(160, 60),
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 40, vertical: 14),
                                 backgroundColor: AppColors.primaryColor,
@@ -267,8 +268,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                 elevation: 5,
                               ),
                               child: _isLoading
-                                  ? CircularProgressIndicator(
-                                      color: Colors.white)
+                                  ? SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                          color: Colors.white),
+                                    )
                                   : const Text(
                                       "Register",
                                       style: TextStyle(

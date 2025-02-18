@@ -325,7 +325,8 @@ Imagefy Team
       List<String> emotions =
           snapshot.docs.map((doc) => doc['emotion'] as String).toList();
 
-      if (emotions.toSet().length == 1) {
+      if (emotions.toSet().length == 1 &&
+          emotions.toSet().contains("Sadness")) {
         String emotion = emotions.first;
         print("User has consistent emotion: $emotion. Sending email...");
         String username = await getUsername(userId);

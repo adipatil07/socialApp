@@ -268,6 +268,7 @@ class _AddPostPageState extends State<AddPostPage> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _savePost,
                   style: ElevatedButton.styleFrom(
+                    fixedSize: Size(160, 60),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 40.0, vertical: 16.0),
                     backgroundColor: AppColors.primaryColor,
@@ -276,7 +277,11 @@ class _AddPostPageState extends State<AddPostPage> {
                     ),
                   ),
                   child: _isLoading
-                      ? CircularProgressIndicator(color: Colors.white)
+                      ? SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(color: Colors.white),
+                        )
                       : const Text(
                           "Save Post",
                           style: TextStyle(

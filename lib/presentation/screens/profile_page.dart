@@ -13,8 +13,6 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     context.read<ProfileCubit>().loadUserProfile();
 
-    
-
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -120,19 +118,6 @@ class ProfilePage extends StatelessWidget {
                           await FirebaseAuth.instance.signOut();
                           context.goNamed(AppRoutes.login.name);
                         }),
-                      ),
-
-
-                      const SizedBox(height: 20),
-
-                      Expanded(
-                        child: Center(
-                          child: Text(
-                            "No posts available",
-                            style:
-                                TextStyle(color: Colors.white70, fontSize: 16),
-                          ),
-                        ),
                       ),
                     ],
                   ),
